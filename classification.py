@@ -3,6 +3,7 @@ from sklearn.metrics import accuracy_score
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 
 def hyperparameter_search(
@@ -81,17 +82,6 @@ def hyperparameter_search(
     return best_model, best_params, best_score, all_results
 
 
-# Example usage:
-# from sklearn.ensemble import RandomForestClassifier
-# model = RandomForestClassifier()
-# param_grid = {
-#     'n_estimators': [50, 100, 200],
-#     'max_depth': [None, 10, 20, 30],
-#     'min_samples_split': [2, 5, 10],
-# }
-# best_model, best_params, best_score, all_results = hyperparameter_search(model, X_train, y_train, X_val, y_val, param_grid, search_type='grid')
-
-
 def plot_hyperparameter_search_results(
     all_results, param_grid, score_metric="mean_test_score"
 ):
@@ -103,3 +93,16 @@ def plot_hyperparameter_search_results(
         ax.set_xlabel(param)
         ax.set_ylabel(score_metric)
     plt.tight_layout()
+
+
+def log_and_normalize(df: pd.DataFrame) -> pd.DataFrame:
+    # all columns but 'is_true', 'mutation', and 'Variant_Classification'
+    features = df.drop(columns=["is_true", "mutation", "Variant_Classification"])
+    # log-transform and normalize the features
+    features = features.apply(lambda x: np.log(1 + x))
+    features = (features - features.mean()) / features.std()
+    # add back the non-numeric columns
+    features = pd.concat(
+        [features, df[["mutation", "Variant_Classification", "is_true"]]], axis=1
+    )
+    return features
