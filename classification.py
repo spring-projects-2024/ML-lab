@@ -1,8 +1,8 @@
+from typing import Dict
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import accuracy_score
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 
 
@@ -49,6 +49,8 @@ def hyperparameter_search(
             cv=cv,
             return_train_score=True,
             verbose=verbose,
+            n_jobs=4
+
         )
     elif search_type == "random":
         search = RandomizedSearchCV(
@@ -60,10 +62,12 @@ def hyperparameter_search(
             random_state=0,
             return_train_score=True,
             verbose=verbose,
+            n_jobs=4
         )
     else:
         raise ValueError("search_type must be either 'grid' or 'random'")
 
+    # can i use multi core?
     search.fit(X_train, y_train)
 
     best_model = search.best_estimator_
@@ -83,12 +87,21 @@ def hyperparameter_search(
 
 
 def plot_hyperparameter_search_results(
-    all_results, param_grid, score_metric="mean_test_score"
+    all_results: pd.DataFrame, param_grid: Dict, score_metric="mean_test_score"
 ):
+    """
+    Plot the effect of each hyperparameter on the validation score. Fixed hyperparameters are averaged over.
+    :param all_results: dataframe with search result, as output by hyperparameter_search
+    :param param_grid: dictionary of all hyperparameters and their values
+    :param score_metric: metric to plot
+    """
     fig, axes = plt.subplots(len(param_grid), 1, figsize=(10, 3 * len(param_grid)))
     for ax, (param, values) in zip(axes, param_grid.items()):
         means = all_results.groupby(f"param_{param}")[score_metric].mean()
-        ax.hist(x=means.index, weights=means.values, bins=len(values), rwidth=0.8)
+        print(means)
+        # i want a bar for each value of the hyperparameter
+        ax.bar(means.index, means.values)
+        # ax.hist(x=means.index, weights=means.values, bins=len(values), rwidth=0.8)
         ax.set_title(f"Effect of {param} on {score_metric}")
         ax.set_xlabel(param)
         ax.set_ylabel(score_metric)
