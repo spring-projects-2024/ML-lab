@@ -3,3 +3,9 @@ statsmodels
 numpy
 seaborn
 scikit-learn
+scanpy
+gseapy
+torchtext
+scgpt
+scipy
+networkx
