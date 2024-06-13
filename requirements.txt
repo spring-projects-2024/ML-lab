@@ -8,4 +8,5 @@ gseapy
 torchtext
 scgpt
 scipy
-networkx
+torch
+pyg
