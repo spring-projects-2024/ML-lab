@@ -15,7 +15,7 @@ class GCN(torch.nn.Module):
     def __init__(self, n_features, emb_size, n_classes, n_mp_layers):
         """
         Parameters:
-            n_features: is the number of nodes in the graph
+            n_features: is node embedding size
 
         """
         super(GCN, self).__init__()
@@ -35,6 +35,7 @@ class GCN(torch.nn.Module):
         #data is an element of pytorch dataset, x is the feature matrix  of size (n_nodes X embedding_dim), edge_index is the adjacency list, batch indicates the nodes that belong to given graph
         x, edge_index, batch = batch.x, batch.edge_index, batch.batch
         out = x
+        print(x)
         for i in range(self.n_mp_layers-1):
             out = self.convs[i](out, edge_index)
             out = tanh(out)
